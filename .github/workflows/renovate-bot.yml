@@ -17,7 +17,7 @@ jobs:
 
       - name: Self-hosted Renovate Bot
         id: self-hosted-renovate-bot
-        uses: renovatebot/github-action@v40.3.4
+        uses: renovatebot/github-action@v40.3.6
         with:
           configurationFile: renovate.json
           token: ${{ secrets.GH_COM_TOKEN_RENOVATE }}  # Use the GitHub PAT directly
