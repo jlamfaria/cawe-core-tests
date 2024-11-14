@@ -2,7 +2,7 @@
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "endpoint": "https://api.github.com/",
   "username": "cicd-renovate[bot]",
-  "gitAuthor": "CICD <jlamfaria@gmail.com>",
+  "gitAuthor": "CICD Renovate Bot <jlamfaria@gmail.com>",
   "platform": "github",
   "branchNameStrict": true,
   "branchPrefix": "renovate/",
@@ -15,7 +15,7 @@
   "automerge": false,
   "baseBranches": ["main"],
   "autodiscover": true,
-  "autodiscoverFilter": "/(jlamfaria/cawe-core-tests))/",
+  "autodiscoverFilter": "/(jlamfaria/cawe-core-tests)/",
   "packageRules": [
     {
       "matchUpdateTypes": ["minor", "patch"],
