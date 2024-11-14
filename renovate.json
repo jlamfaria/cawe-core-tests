@@ -10,8 +10,8 @@
   "labels": [
     "dependencies"
   ],
-  "extends": ["config:recommended", ":dependencyDashboardApproval"],
-  "automerge": false,
+  "extends": ["config:recommended", ":dependencyDashboard"],
+  "automerge": true,
   "baseBranches": ["main"],
   "autodiscover": true,
   "autodiscoverFilter": "/(jlamfaria/cawe-core-tests)/",
@@ -20,13 +20,13 @@
       "matchUpdateTypes": ["minor", "patch"],
       "automerge": true,
       "prCreation": "immediate",
-      "dependencyDashboardApproval": true
+      "prTitle": "{{depName}} {{depVersion}} ({{updateType}} update)"
     },
     {
       "matchUpdateTypes": ["major"],
       "automerge": false,
       "prCreation": "not-pending",
-      "dependencyDashboardApproval": true
+      "prTitle": "{{depName}} {{depVersion}} (major update)"
     }
   ]
 }
