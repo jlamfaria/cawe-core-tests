@@ -2,7 +2,7 @@
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "endpoint": "https://api.github.com/",
   "username": "cicd-renovate[bot]",
-  "gitAuthor": "CICD",
+  "gitAuthor": "CICD <jlamfaria@gmail.com>",
   "platform": "github",
   "branchNameStrict": true,
   "branchPrefix": "renovate/",
