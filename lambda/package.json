@@ -18,7 +18,7 @@
     "@types/express": "4.17.21",
     "@types/got": "9.6.12",
     "@types/jest": "27.5.2",
-    "@types/lodash": "4.14.191",
+    "@types/lodash": "4.17.13",
     "@types/node": "17.0.45",
     "@types/sinon": "9.0.11",
     "@typescript-eslint/eslint-plugin": "5.41.0",
