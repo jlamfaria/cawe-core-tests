@@ -1,0 +1,108 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cloudwatch-exporter
+  labels:
+    app: cloudwatch-exporter
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cloudwatch-exporter
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 25%
+      maxSurge: 1
+  template:
+    metadata:
+      labels:
+        app: cloudwatch-exporter
+    spec:
+      serviceAccountName: cawe-monitoring-exporter-sa
+      containers:
+        - name: cloudwatch-exporter
+          image: quay.io/prometheus/cloudwatch-exporter:latest
+          volumeMounts:
+            - name: config-volume
+              mountPath: /config
+          securityContext:
+            allowPrivilegeEscalation: false
+            runAsUser: 1000
+            runAsGroup: 1000
+            runAsNonRoot: true
+            seccompProfile:
+              type: RuntimeDefault
+            capabilities:
+              drop:
+                - ALL
+          resources:
+            requests:
+              cpu: 0.05
+              memory: 128Mi
+            limits:
+              memory: 512Mi                    
+      volumes:
+        - name: config-volume
+          configMap:
+            name: cw-exporter-config
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cw-exporter-config
+data:
+  config.yml: |-
+    region: eu-central-1
+    role_arn: arn:aws:iam::{{ .Values.AdvancedAccountId }}:role/cawe/cawe-monitoring-exporter-role
+    metrics:
+     - aws_namespace: AWS/SQS
+       aws_metric_name: ApproximateNumberOfMessagesVisible
+       aws_dimensions: [QueueName]
+       aws_statistics: [Sum]
+     - aws_namespace: AWS/Lambda
+       aws_metric_name: Invocations
+       aws_dimensions: [FunctionName]
+       aws_statistics: [Sum]
+     - aws_namespace: AWS/Lambda
+       aws_metric_name: Errors
+       aws_dimensions: [FunctionName]
+       aws_statistics: [Sum]
+     - aws_namespace: AWS/Lambda
+       aws_metric_name: Throttles
+       aws_dimensions: [FunctionName]
+       aws_statistics: [Sum]
+     - aws_namespace: AWS/Lambda
+       aws_metric_name: Duration
+       aws_dimensions: [FunctionName]
+       aws_statistics: [Sum]
+     - aws_namespace: AWS/Lambda
+       aws_metric_name: ConcurrentExecutions
+       aws_dimensions: [FunctionName]
+       aws_statistics: [Sum]
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: cloudwatch-exporter
+spec:
+  selector:
+    app: cloudwatch-exporter
+  ports:
+    - port: 9106
+      protocol: TCP
+      targetPort: 9106
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: cloudwatch-exporter-pdb
+  labels:
+    app: cloudwatch-exporter
+spec:
+  maxUnavailable: 1
+  selector:
+    matchLabels:
+      app: cloudwatch-exporter     

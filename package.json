@@ -1,0 +1,20 @@
+{
+  "scripts": {
+    "lint": "npm --prefix lambda run lint",
+    "lint:fix": "npm --prefix lambda run lint:fix",
+    "prettier": "prettier --check \"./*.{yml,yaml,md}\" \".github/**/*.{yml,yaml,md}\" \"./documentation/**/*.{yml,yaml,md}\" \"./images/**/*.{yml,yaml,md}\" && npm --prefix lambda run prettier",
+    "prettier:fix": "prettier --write \"./*.{yml,yaml,md}\" \".github/**/*.{yml,yaml,md}\" \"./documentation/**/*.{yml,yaml,md}\" \"./images/**/*.{yml,yaml,md}\" && npm --prefix lambda run prettier:fix"
+  },
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^8.0.0",
+    "@typescript-eslint/parser": "^8.0.0",
+    "eslint": "^9.0.0",
+    "eslint-plugin-jest": "^27.6.3",
+    "eslint-plugin-yaml": "^1.0.0",
+    "prettier": "3.3.3"
+  },
+  "version": "1.0.0",
+  "dependencies": {
+    "got": "^14.3.0"
+  }
+}

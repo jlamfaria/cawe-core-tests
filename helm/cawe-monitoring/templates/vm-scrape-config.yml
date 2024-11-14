@@ -1,0 +1,98 @@
+{{ if eq .Values.environment "int" }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: vm-scrape-config
+data:
+  scrape.yml: |
+    global:
+      scrape_interval: 1m
+
+    scrape_configs:
+      - job_name: 'cloudwatch-exporter'
+        static_configs:
+          - targets: ['cloudwatch-exporter:9106/metrics']
+    
+      - job_name: 'monit-int-orbit-cluster'
+        metrics_path: /probe
+        params:
+          module: [http_generic, http_not_found, http_forbidden, tcp_connect]
+        static_configs:
+          - targets:
+            # http_generic module (default)
+            - https://cawe-api.int.eu-central-1.cawe.daytona.eu-central-1.aws.cloud.bmw/api/health # cawe-api-int
+    
+            # Custom modules [http_not_found, http_forbidden, tcp_connect]
+            
+            - cawe-api-cluster-documentdb.cluster-cxbwnxlrx867.eu-central-1.docdb.amazonaws.com:27017 # DocumentDB INT
+            - https://compass.bmwgroup.net/api/api-data/applicationList.json # Compass Intranet BMW 403 is expected
+      
+    
+            # Replacement and relabel for each endpoint that needs a custom module
+        relabel_configs:
+          - source_labels: [__address__]
+            target_label: __param_target
+          - source_labels: [__param_target]
+            target_label: instance
+          - target_label: __address__
+            replacement: blackbox:9115  # Address where Blackbox Exporter is running
+          - source_labels: [__param_target]
+            regex: https://compass.bmwgroup.net/api/api-data/applicationList.json
+            action: replace
+            target_label: __param_module
+            replacement: http_forbidden
+          - source_labels: [__param_target]
+            regex: cawe-api-cluster-documentdb.cluster-cxbwnxlrx867.eu-central-1.docdb.amazonaws.com:27017
+            action: replace
+            target_label: __param_module
+            replacement: tcp_connect
+{{ end }}
+{{ if eq .Values.environment "prod" }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: vm-scrape-config
+data:
+  scrape.yml: |
+    global:
+      scrape_interval: 1m
+
+    scrape_configs:
+      - job_name: 'cloudwatch-exporter'
+        static_configs:
+          - targets: ['cloudwatch-exporter:9106/metrics']
+    
+      - job_name: 'monit-int-orbit-cluster'
+        metrics_path: /probe
+        params:
+          module: [http_generic, http_not_found, http_forbidden, tcp_connect]
+        static_configs:
+          - targets:
+            # http_generic module (default)
+            - https://cawe-api.prod.eu-central-1.cawe.daytona.eu-central-1.aws.cloud.bmw/api/health # cawe-api-prod
+    
+            # Custom modules [http_not_found, http_forbidden, tcp_connect]
+            
+            - cawe-api-cluster-documentdb.cluster-celizandkk4k.eu-central-1.docdb.amazonaws.com:27017 # DocumentDB PROD
+            - https://compass.bmwgroup.net/api/api-data/applicationList.json # Compass Intranet BMW 403 is expected
+    
+            # Replacement and relabel for each endpoint that needs a custom module
+        relabel_configs:
+          - source_labels: [__address__]
+            target_label: __param_target
+          - source_labels: [__param_target]
+            target_label: instance
+          - target_label: __address__
+            replacement: blackbox:9115  # Address where Blackbox Exporter is running
+          - source_labels: [__param_target]
+            regex: https://compass.bmwgroup.net/api/api-data/applicationList.json
+            action: replace
+            target_label: __param_module
+            replacement: http_forbidden
+          - source_labels: [__param_target]
+            regex: cawe-api-cluster-documentdb.cluster-celizandkk4k.eu-central-1.docdb.amazonaws.com:27017
+            action: replace
+            target_label: __param_module
+            replacement: tcp_connect
+{{ end }}

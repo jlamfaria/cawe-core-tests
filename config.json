@@ -1,0 +1,27 @@
+{
+  "endpoint": "https://code.connected.bmw/api/v3/",
+  "autodiscover": true,
+  "autodiscoverFilter": "/(cicd/(cawe-core-tests))/",
+  "username": "renovate-bot",
+  "gitAuthor": "Spaceship Renovate Bot <renovatebot@connected.bmw>",
+  "branchPrefix": "renovate/",
+  "prConcurrentLimit": 5,
+  "extends": [
+    "config:recommended"
+  ],
+  "dependencyDashboard": true,
+  "dependencyDashboardTitle": "Dependency Update Dashboard",
+  "packageRules": [
+    {
+      "matchUpdateTypes": ["minor", "patch"],
+      "automerge": true,
+      "dependencyDashboardApproval": true,
+      "commitMessage": {
+        "prefix": "Update",
+        "includeVersion": true,
+        "message": "Update minor/patch dependency {{depName}} to {{newVersion}}"
+      },
+      "prBody": "### Minor/Patch Update for `{{depName}}`\n\n- Version: `{{currentVersion}}` → `{{newVersion}}`\n\n> **Note**: Manual selection required in the dashboard before PR creation and Renovate is limited to opening a maximum of **5 pull requests at the same time**.\n"
+    }
+  ]
+}

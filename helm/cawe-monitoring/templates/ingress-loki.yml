@@ -1,0 +1,50 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    cert-manager.io/cluster-issuer: ""
+    kubernetes.io/ingress.class: private-nginx
+  name: loki
+  namespace: cawe-monitoring
+spec:
+  tls:
+    - hosts:
+        - logs-injest.{{ .Values.environment }}.eu-central-1.cawe.daytona.eu-central-1.aws.cloud.bmw
+      secretName: cawe-loki-injest-ingress
+  rules:
+    - host: logs-injest.{{ .Values.environment }}.eu-central-1.cawe.daytona.eu-central-1.aws.cloud.bmw
+      http:
+        paths:
+          - backend:
+              service:
+                name: cawe-monitoring-loki
+                port:
+                  number: 3100
+            path: /
+            pathType: ImplementationSpecific
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name:  cawe-loki-injest-ingress
+  namespace: cawe-monitoring
+spec:
+  secretName: cawe-loki-injest-ingress
+  commonName: "{{ .Values.environment }}.{{ .Values.region }}.cawe.acme.bmw.com"
+  subject:
+    organizations:
+      - Bayerische Motoren Werke AG
+    organizationalUnits:
+      - Daytona
+    localities:
+      - Munich
+    provinces:
+      - Bavaria
+    countries:
+      - DE
+  dnsNames:
+    - "{{ .Values.environment }}.{{ .Values.region }}.cawe.acme.bmw.com"
+    - "logs-injest.{{ .Values.environment }}.eu-central-1.cawe.daytona.eu-central-1.aws.cloud.bmw"
+  issuerRef:
+    name: bmw-ca
+    kind: ClusterIssuer

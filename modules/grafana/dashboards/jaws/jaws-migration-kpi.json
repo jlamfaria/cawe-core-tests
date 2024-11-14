@@ -1,0 +1,428 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": {
+          "type": "grafana",
+          "uid": "-- Grafana --"
+        },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "id": 44,
+  "links": [],
+  "liveNow": false,
+  "panels": [
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "b8ed5f59-84f5-49d0-b501-eba2ad31f6d1"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "filterable": true,
+            "inspect": false
+          },
+          "mappings": [
+            {
+              "options": {
+                "jaws_instance": {
+                  "index": 0
+                }
+              },
+              "type": "value"
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 24,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 1,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "enablePagination": true,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "frameIndex": 1,
+        "showHeader": true,
+        "sortBy": []
+      },
+      "pluginVersion": "10.2.2",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "b8ed5f59-84f5-49d0-b501-eba2ad31f6d1"
+          },
+          "editorMode": "code",
+          "expr": "max(totalNumberOfJobs) by (jaws_instance)",
+          "instant": false,
+          "legendFormat": "__auto",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Migration KPI - Total Number of Jobs",
+      "transformations": [
+        {
+          "id": "joinByLabels",
+          "options": {
+            "value": "jaws_instance"
+          }
+        },
+        {
+          "id": "reduce",
+          "options": {
+            "reducers": [
+              "max",
+              "last"
+            ]
+          }
+        }
+      ],
+      "type": "table"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "b8ed5f59-84f5-49d0-b501-eba2ad31f6d1"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 19,
+            "gradientMode": "hue",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 3,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 10,
+        "w": 24,
+        "x": 0,
+        "y": 24
+      },
+      "id": 2,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "table",
+          "placement": "right",
+          "showLegend": true,
+          "sortBy": "Name",
+          "sortDesc": false
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "10.2.2",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "b8ed5f59-84f5-49d0-b501-eba2ad31f6d1"
+          },
+          "editorMode": "code",
+          "expr": "max(nrOfWorkflows) by (jaws_instance)",
+          "instant": false,
+          "legendFormat": "{{jaws_instance}}-nrOfWorkflows",
+          "range": true,
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "b8ed5f59-84f5-49d0-b501-eba2ad31f6d1"
+          },
+          "editorMode": "code",
+          "expr": "max(nrOfMultiBranchPipelines) by (jaws_instance)",
+          "hide": false,
+          "instant": false,
+          "legendFormat": "{{jaws_instance}}-nrOfMultiBranchPipelines",
+          "range": true,
+          "refId": "B"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "b8ed5f59-84f5-49d0-b501-eba2ad31f6d1"
+          },
+          "editorMode": "code",
+          "expr": "max(freestyleProjects) by (jaws_instance)",
+          "hide": false,
+          "instant": false,
+          "legendFormat": "{{jaws_instance}}-freestyleProjects",
+          "range": true,
+          "refId": "C"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "b8ed5f59-84f5-49d0-b501-eba2ad31f6d1"
+          },
+          "editorMode": "code",
+          "expr": "max(totalNumberOfJobs) by (jaws_instance)",
+          "hide": false,
+          "instant": false,
+          "legendFormat": "{{jaws_instance}}-totalNumberOfJobs",
+          "range": true,
+          "refId": "D"
+        }
+      ],
+      "title": "KPI Migration Detailed Job Count",
+      "transformations": [
+        {
+          "id": "joinByField",
+          "options": {
+            "byField": "Time",
+            "mode": "outer"
+          }
+        }
+      ],
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "b8ed5f59-84f5-49d0-b501-eba2ad31f6d1"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 14,
+        "w": 24,
+        "x": 0,
+        "y": 34
+      },
+      "id": 3,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "b8ed5f59-84f5-49d0-b501-eba2ad31f6d1"
+          },
+          "editorMode": "code",
+          "expr": "totalActiveJobs",
+          "instant": false,
+          "legendFormat": "ActiveJobs - {{jaws_instance}}",
+          "range": true,
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "b8ed5f59-84f5-49d0-b501-eba2ad31f6d1"
+          },
+          "editorMode": "code",
+          "expr": "totalDisabledJobs",
+          "hide": false,
+          "instant": false,
+          "legendFormat": "Disabled Jobs - {{jaws_instance}}",
+          "range": true,
+          "refId": "B"
+        }
+      ],
+      "title": "Panel Title",
+      "type": "timeseries"
+    }
+  ],
+  "refresh": "",
+  "schemaVersion": 38,
+  "tags": [],
+  "templating": {
+    "list": [
+      {
+        "datasource": {
+          "type": "prometheus",
+          "uid": "b8ed5f59-84f5-49d0-b501-eba2ad31f6d1"
+        },
+        "filters": [
+          {
+            "key": "environment",
+            "operator": "=",
+            "value": "emea-prod"
+          }
+        ],
+        "hide": 0,
+        "label": "environment",
+        "name": "environment",
+        "skipUrlSync": false,
+        "type": "adhoc"
+      },
+      {
+        "datasource": {
+          "type": "prometheus",
+          "uid": "b8ed5f59-84f5-49d0-b501-eba2ad31f6d1"
+        },
+        "filters": [],
+        "hide": 0,
+        "label": "jaws_instance",
+        "name": "jaws_instance",
+        "skipUrlSync": false,
+        "type": "adhoc"
+      }
+    ]
+  },
+  "time": {
+    "from": "now-30d",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "",
+  "title": "Migration KPI",
+  "uid": "cbe2139e-4d75-43ad-acfb-706c1add869fx",
+  "version": 9,
+  "weekStart": ""
+}

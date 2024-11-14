@@ -1,0 +1,129 @@
+# Generated on https://structurizr.com/dsl
+# Using Implementation: Dagre / Direction: Left to Right / Default parameters
+
+workspace {
+
+    model {
+        
+        user = person "User"{
+           # description "User via GitHub"
+            }
+           
+        
+        # RUNNER SYSTEM
+        runnerSystem = softwareSystem "Runner System" {
+            
+            #CONTAINER
+            runnerScheduler = container "Runner Scheduler" {
+            
+                
+                # COMPONENTS
+                apiGateway = component "API Gateway"{
+                    user -> this "Interacts via GitHub"
+                }
+                lambda = component "Lambda"{
+                    apiGateway -> this "Executes"
+                    
+                    
+                }
+                sqs = component "Simple Queue System"{
+                    lambda -> this "Pushes"
+                    this -> lambda "Pulls"
+                }
+                
+            }
+            
+            runner = container "Runner" {
+                description "EC2 (Linux, macOS)"
+                
+                # COMPONENTS
+                lambdaRunner = component "Lambda"{
+                    lambda -> this "Sends Job"
+                }
+                
+                warmPool = component "Warm Pool"{
+                    lambdaRunner -> this "Consults"
+                }
+                
+                ec2Runner = component "EC2Runner" {
+                    warmPool -> this "Detaches"
+                    lambdaRunner -> this "Provisions"
+                    this -> user "Registers on GitHub"
+                    
+                }
+                
+                autoScalingGroup = component "Auto Scaling Group" {
+                    warmPool -> this "Updates"
+                    this -> warmPool "Updates"
+                }
+                
+            }
+
+        }
+        
+        # MONITORING
+        monitoring = softwareSystem "Monitoring System" {
+        
+            #CONTAINER
+            monitoringSystem = container "Monitoring"{
+            
+            #COMPONENTS
+                victoriaMetrics = component "Victoria Metrics"{
+                    ec2Runner -> this "Sends metrics"
+                    lambda -> this "Sends metrics"
+                }
+                loki = component "Loki" {}
+                grafana = component "Grafana" {
+                    user -> this "Visualises"
+                }
+             
+                
+            }
+            
+        }
+            
+        # MANAGEMENT SYSTEM (PRODUCT API / INTERFACE CONTRACT API)
+        managementSystem = softwareSystem "Management System"{
+            description "Product API / Interface Contract API"
+            
+            #CONTAINERS
+            interfaceContract = container "Interface Contract"{
+                user -> this "Manages IFC"
+                ec2Runner -> this "Checks"
+            }
+            
+            analyticsAPI = container "Analytics API"{
+                ec2Runner -> this "Sends metrics"
+            }
+
+        }
+        
+        
+    }
+
+    views {
+        systemContext runnerSystem {
+            include *
+        #    autolayout lr 500 500
+        }
+        
+                container runnerSystem {
+            include *
+        #    autolayout lr 500 600
+        }
+        
+        component runnerScheduler {
+            include *
+        #    autolayout lr
+        }
+        
+        component runner {
+            include *
+        #    autolayout lr 500 500
+        }
+
+
+        theme default
+    }
+
+}

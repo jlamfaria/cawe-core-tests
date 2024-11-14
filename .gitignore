@@ -1,0 +1,20 @@
+# Local .terraform directories
+**/.terraform
+**/.terraform/*
+.terraform.lock.hcl
+.external_modules
+*.tfplan
+
+# Node modules to configure git hooks
+node_modules
+
+# MacOS
+.DS_Store
+
+**/.idea/
+**/.idea
+/helm/cawe-monitoring/charts/
+**/sessionmanager-bundle/
+modules/finops/lambda/dependencies-layer/
+modules/finops/lambda/dependencies-layer-*
+helm/cawe-monitoring/Chart.lock

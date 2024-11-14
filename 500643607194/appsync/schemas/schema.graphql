@@ -1,0 +1,28 @@
+schema {
+  query: Query
+  mutation: Mutation
+}
+
+type DeploymentEvent {
+  GitHubOrganisation: String!
+  GitHubRepository: String!
+  appId: ID!
+  appURL: AWSURL
+  deployId: String!
+  deploymentJobURL: AWSURL!
+  deploymentType: String!
+  msId: String
+  region: String!
+  stage: String!
+  status: String
+  timestamp: AWSDateTime!
+  type: String!
+}
+
+type Mutation {
+  createDeploymentEvent(GitHubOrganisation: String!, GitHubRepository: String!, appId: ID!, appURL: AWSURL, deployId: String!, deploymentJobURL: AWSURL!, deploymentType: String!, msId: String, region: String!, stage: String!, status: String, type: String!): DeploymentEvent
+}
+
+type Query {
+  notImplemented(appId: String): DeploymentEvent
+}

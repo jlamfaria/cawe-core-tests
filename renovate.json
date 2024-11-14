@@ -1,0 +1,31 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "endpoint": "https://code.connected.bmw/api/v3/",
+  "username": "cicd-renovate[bot]",
+  "gitAuthor": "CICD Renovate Bot <renovatebot@connected.bmw>",
+  "platform": "github",
+  "branchNameStrict": true,
+  "branchPrefix": "renovate/",
+  "commitMessagePrefix": "chore(deps): ",
+  "labels": [
+    "dependencies"
+  ],
+  "extends": ["config:recommended", ":dependencyDashboardApproval"],
+  "dependencyDashboard": true,
+  "automerge": false,
+  "baseBranches": ["main"],
+  "autodiscover": true,
+  "autodiscoverFilter": "/(cicd/(cawe-core-tests))/",
+  "packageRules": [
+    {
+      "matchUpdateTypes": ["minor", "patch"],
+      "automerge": true,
+      "prCreation": "immediate"
+    },
+    {
+      "matchUpdateTypes": ["major"],
+      "automerge": false,
+      "prCreation": "not-pending"
+    }
+  ]
+}

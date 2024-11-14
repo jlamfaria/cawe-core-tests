@@ -1,0 +1,51 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    cert-manager.io/cluster-issuer: ""
+    kubernetes.io/ingress.class: private-nginx
+  name: victoria-metrics-vmselect
+  namespace: cawe-monitoring
+spec:
+  tls:
+    - hosts:
+        - metrics-egress.{{ .Values.environment }}.eu-central-1.cawe.daytona.eu-central-1.aws.cloud.bmw
+      secretName: cawe-victoria-egress
+  rules:
+    - host: metrics-egress.{{ .Values.environment }}.eu-central-1.cawe.daytona.eu-central-1.aws.cloud.bmw
+      http:
+        paths:
+          - backend:
+              service:
+                name: cawe-monitoring-victoria-metrics-vmselect
+                port:
+                  number: 8481
+            path: /
+            pathType: ImplementationSpecific
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name:  cawe-victoria-egress
+  namespace: cawe-monitoring
+spec:
+  secretName: cawe-victoria-egress
+  commonName: "{{ .Values.environment }}.{{ .Values.region }}.cawe.acme.bmw.com"
+  subject:
+    organizations:
+      - Bayerische Motoren Werke AG
+    organizationalUnits:
+      - Daytona
+    localities:
+      - Munich
+    provinces:
+      - Bavaria
+    countries:
+      - DE
+  dnsNames:
+    - "{{ .Values.environment }}.{{ .Values.region }}.cawe.acme.bmw.com"
+    - "metrics-egress.{{ .Values.environment }}.{{ .Values.region }}.cawe.daytona.eu-central-1.aws.cloud.bmw"
+  issuerRef:
+    name: bmw-ca
+    kind: ClusterIssuer
+---

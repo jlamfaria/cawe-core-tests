@@ -1,0 +1,22 @@
+{
+    "compilerOptions": {
+      "esModuleInterop": true,
+      "lib": [
+        "ES2019"
+      ],
+      "target": "ES2019",
+      "module": "commonjs",
+      "outDir": "dist/",
+      "pretty": true,
+      "inlineSourceMap": true,
+      "typeRoots": [
+        "../../node_modules/@types"
+      ]
+    },
+    "include": [
+      "../../test/**/**.ts"
+    ],
+    "exclude": [
+      "../../node_modules/"
+    ]
+}

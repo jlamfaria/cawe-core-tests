@@ -1,0 +1,128 @@
+# Generated on https://structurizr.com/dsl
+# Using Implementation: Dagre / Direction: Left to Right / Default parameters
+
+workspace {
+
+    model {
+        
+        user = person "User"{
+           # description "User via GitHub"
+            }
+           
+            monitoringSystem = softwareSystem "Monitoring System" {
+        
+                #CONTAINER
+                monitoring = container "Monitoring"{
+                
+                #COMPONENTS
+                    victoriaMetrics = component "Victoria Metrics"{
+                        
+                    }
+                    loki = component "Loki" {
+                        
+                    }
+                    grafana = component "Grafana" {
+                        user -> this "Visualizes"
+                        this -> victoriaMetrics "Consumes"
+                        this -> loki "Consumes"
+                    }
+                 
+                    
+                }
+            
+        }
+        
+        
+        # RUNNER SYSTEM
+        runnerSystem = softwareSystem "Runner System" {
+            
+            #CONTAINER
+            runnerScheduler = container "Runner Scheduler" {
+            
+                
+                # COMPONENTS
+                apiGateway = component "API Gateway"{
+                    user -> this "Interacts via GitHub"
+                }
+                lambda = component "Lambda"{
+                    
+                    
+                    
+                }
+                sqs = component "Simple Queue System"{
+                    
+                }
+                
+            }
+            
+            runner = container "Runner" {
+                description "EC2 (Linux, macOS)"
+                
+                # COMPONENTS
+                lambdaRunner = component "Lambda"{
+                    
+                }
+                
+                warmPool = component "Warm Pool"{
+                    
+                }
+                
+                ec2Runner = component "EC2Runner" {
+                    this -> victoriaMetrics "Sends metrics"
+                    this -> loki "Sends logs"
+                    
+                }
+                
+                autoScalingGroup = component "Auto Scaling Group" {
+                    
+                }
+                
+            }
+
+        }
+        
+        # MONITORING
+
+            
+        # MANAGEMENT SYSTEM (PRODUCT API / INTERFACE CONTRACT API)
+        managementSystem = softwareSystem "Management System"{
+            description "Product API / Interface Contract API"
+            
+            #CONTAINERS
+            interfaceContract = container "Interface Contract"{
+                user -> this "Manages IFC"
+                ec2Runner -> this "Checks"
+            }
+            
+            analyticsAPI = container "Analytics API"{
+                ec2Runner -> this "Sends metrics"
+                monitoringSystem -> this "Consumes Analytics API"
+                grafana -> this "Consumes"
+            }
+
+        }
+        
+        
+    }
+
+    views {
+        systemContext monitoringSystem {
+            include *
+        #    autolayout lr 500 500
+        }
+        
+        container monitoringSystem {
+        include *
+        # autolayout lr 500 600
+        }
+        
+        component monitoring {
+        include *
+        # autolayout lr 500 600
+        }
+
+
+        theme default
+    }
+
+}

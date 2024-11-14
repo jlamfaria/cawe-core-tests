@@ -1,0 +1,32 @@
+{
+  "verbose": true,
+  "rootDir": "../..",
+  "testEnvironment": "node",
+  "resetModules": true,
+  "resetMocks": true,
+  "testMatch": [
+    "<rootDir>/test/unit/src/**/*.[jt]s?(x)"
+  ],
+  "testPathIgnorePatterns": [
+    "test/unit/_mocks",
+    "__snapshots__"
+  ],
+  "setupFilesAfterEnv": [
+    "jest-extended"
+  ],
+  "collectCoverageFrom": [
+    "src/**/*.ts"
+  ],
+  "coverageThreshold": {
+    "global": {
+      "functions": 40,
+      "lines": 40,
+      "statements": 40
+    }
+  },
+  "transform": {
+    "^.+\\.tsx?$": ["ts-jest", {
+      "tsconfig": "<rootDir>/test/unit/tsconfig.json"
+    }]
+  }
+}

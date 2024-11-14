@@ -1,0 +1,421 @@
+environment: prod
+region: eu-central-1
+
+loki:
+  namespace: cawe-monitoring
+  rbac:
+    create: false
+    pspEnabled: false
+
+victoria-metrics:
+  rbac:
+    create: false
+    pspEnabled: false
+
+  vmselect:
+    resources:
+      limits:
+        memory: 18Gi
+      requests:
+        memory: 4Gi
+    extraArgs:
+      search.latencyOffset: 5s
+      search.maxSeries: 300000
+      search.maxPointsPerTimeseries: 300000
+      envflag.enable: "true"
+      envflag.prefix: VM_
+      loggerFormat: json
+      search.maxSamplesPerQuery: "25000000" #Needed to be able to export/migrate data due to high cardinality
+      memory.allowedPercent: 100
+
+    podDisruptionBudget:
+      enabled: true
+      minAvailable: 1
+
+    podSecurityContext:
+      allowPrivilegeEscalation: false
+      runAsUser: 1000
+      runAsGroup: 1000
+      runAsNonRoot: true
+      seccompProfile:
+        type: RuntimeDefault
+      capabilities:
+        drop:
+          - ALL
+
+    securityContext:
+      runAsUser: 1000
+      runAsGroup: 1000
+      runAsNonRoot: true
+      seccompProfile:
+        type: RuntimeDefault
+
+    topologySpreadConstraints:
+      - maxSkew: 1
+        topologyKey: kubernetes.io/hostname
+        whenUnsatisfiable: ScheduleAnyway
+        labelSelector:
+          matchLabels:
+            app: vmselect
+
+
+  vminsert:
+
+    resources:
+      limits:
+        memory: 512Mi
+      requests:
+        cpu: 0.05
+        memory: 128Mi
+
+    extraArgs:
+      envflag.enable: "true"
+      envflag.prefix: VM_
+      loggerFormat: json
+
+    podDisruptionBudget:
+      enabled: true
+      minAvailable: 1      
+
+    topologySpreadConstraints:
+      - maxSkew: 1
+        topologyKey: kubernetes.io/hostname
+        whenUnsatisfiable: ScheduleAnyway
+        labelSelector:
+          matchLabels:
+            app: vminsert
+
+    podSecurityContext:
+      allowPrivilegeEscalation: false
+      runAsUser: 1000
+      runAsGroup: 1000
+      runAsNonRoot: true
+      seccompProfile:
+        type: RuntimeDefault
+      capabilities:
+        drop:
+          - ALL
+      
+    securityContext:
+      runAsUser: 1000
+      runAsGroup: 1000
+      runAsNonRoot: true
+      seccompProfile:
+        type: RuntimeDefault
+
+
+  vmstorage:
+
+    resources:
+      limits:
+        memory: 15Gi
+      requests:
+        cpu: 100m
+        memory: 6Gi 
+
+    extraArgs:
+      envflag.enable: "true"
+      envflag.prefix: VM_
+      loggerFormat: json
+
+    persistentVolume:
+      size: 300Gi
+
+    retentionPeriod: 12
+
+    nodeSelector:
+      "orbit.bmw.de/statefulset" : "supported"
+
+    podDisruptionBudget:
+      enabled: true
+      minAvailable: 1
+
+    topologySpreadConstraints:
+      - maxSkew: 1
+        topologyKey: kubernetes.io/hostname
+        whenUnsatisfiable: ScheduleAnyway
+        labelSelector:
+          matchLabels:
+            app: vmstorage
+
+
+victoria-metrics-agent:
+  
+  resources:
+    limits:
+      memory: 512Mi
+    requests:
+      cpu: 0.05
+      memory: 128Mi
+
+  rbac:
+    create: false
+    pspEnabled: false
+
+  podDisruptionBudget:
+    enabled: true
+    maxUnavailable: 1
+
+  remoteWriteUrls:
+    - "http://cawe-monitoring-victoria-metrics-vminsert:8480/insert/0/prometheus"
+
+  configMap: "vm-scrape-config"
+
+  service:
+    enabled: true
+
+  statefulset:
+    enabled: false
+    clusterMode: false
+    replicationFactor: 3
+    updateStrategy: { }
+
+  podSecurityContext:
+    runAsUser: 1000
+    runAsGroup: 1000
+    runAsNonRoot: true
+    seccompProfile:
+      type: RuntimeDefault
+
+  securityContext:
+    allowPrivilegeEscalation: false
+    runAsUser: 1000
+    runAsGroup: 1000
+    runAsNonRoot: true
+    seccompProfile:
+      type: RuntimeDefault
+    capabilities:
+      drop:
+        - ALL
+
+victoria-metrics-alert:
+  rbac:
+    create: false
+    pspEnabled: false
+
+  server:
+    configMap: "vm-alert-rules"
+    replicaCount: 3
+
+    resources:
+      limits:
+        memory: 256Mi
+      requests:
+        cpu: 0.05
+        memory: 128Mi
+
+    podDisruptionBudget:
+      enabled: true
+      minAvailable: 1 
+
+    podSecurityContext:
+      runAsUser: 1000
+      runAsGroup: 1000
+      runAsNonRoot: true
+      seccompProfile:
+        type: RuntimeDefault
+
+    securityContext:
+      allowPrivilegeEscalation: false
+      runAsUser: 1000
+      runAsGroup: 1000
+      runAsNonRoot: true
+      seccompProfile:
+        type: RuntimeDefault  
+      capabilities:
+        drop:
+          - ALL
+
+    notifier:
+      alertmanager:
+        url: "http://cawe-monitoring-alertmanager:9093"
+
+    datasource:
+      url: "http://cawe-monitoring-victoria-metrics-vmselect:8481/select/0/prometheus"
+
+postgresql:
+  readReplicas:
+    nodeSelector:
+      orbit.bmw.de/statefulset: supported
+    resourcesPreset: "small"
+  primary:
+    nodeSelector:
+      orbit.bmw.de/statefulset: supported
+    resourcesPreset: "small"
+    pdb:
+      create: true
+      maxUnavailable: 1
+    resources:
+      limits:
+        memory: 1Gi
+        cpu: 2
+      requests:
+        cpu: 0.05
+        memory: 128Mi
+  global:
+    postgresql:
+      auth:
+        username: grafana
+        database: grafana
+        existingSecret: postgresql-grafana-secret-prod
+        secretKeys:
+          adminPasswordKey: adminPassword
+          userPasswordKey: userPassword
+
+grafana:
+  rbac:
+    create: false
+    pspEnabled: false
+
+  plugins:
+    - yesoreyeram-infinity-datasource
+
+  podDisruptionBudget:
+    enabled: true
+    minAvailable: 3
+  
+  autoscaling:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 5
+    targetCPU: "60"
+    targetMemory: "60"
+
+  resources:
+    limits:
+      memory: 3Gi
+    requests:
+      cpu: 300m
+      memory: 256Mi
+
+  grafana.ini:
+    database:
+      type: postgres
+      host: cawe-monitoring-postgresql:5432
+      name: grafana
+      user: grafana
+      password: $__file{/etc/secrets/postgres-password/userPassword}
+    users:
+      viewers_can_edit: true
+    server:
+      domain: "spaceship.bmwgroup.net"
+      root_url: https://%(domain)s/grafana
+      serve_from_sub_path: true
+    auth:
+      disable_login_form: true
+    auth.generic_oauth:
+      auto_login: true
+      enabled: true
+      allow_assign_grafana_admin: true
+      name: Single Sign-on (WebEAM.Next)
+      client_id: "grafana-prod"
+      client_secret: $__file{/etc/secrets/grafana-secret/client_secret}
+      scopes: openid email profile offline_access roles
+      email_attribute_path: email
+      login_attribute_path: username
+      name_attribute_path: full_name
+      auth_url: https://core-mgmt-prd.westeurope.cloudapp.azure.com/auth/realms/spaceship/protocol/openid-connect/auth
+      token_url: https://core-mgmt-prd.westeurope.cloudapp.azure.com/auth/realms/spaceship/protocol/openid-connect/token
+      api_url: https://core-mgmt-prd.westeurope.cloudapp.azure.com/auth/realms/spaceship/protocol/openid-connect/userinfo
+      role_attribute_path: contains(client_roles[*], 'grafana-admin') && 'GrafanaAdmin' || contains(client_roles[*], 'admin') && 'Admin' || contains(client_roles[*], 'editor') && 'Editor' || 'Viewer'
+
+
+  extraSecretMounts:
+    - name: keycloak-client-secret
+      mountPath: /etc/secrets/grafana-secret
+      secretName: grafana-prod-keycloak-client-secret
+      readOnly: true
+
+    - name: postgresql-grafana-secret-prod
+      mountPath: /etc/secrets/postgres-password
+      secretName: postgresql-grafana-secret-prod
+      readOnly: true
+
+blackbox:
+  replicas: 3
+
+alertmanager:
+  replicaCount: 3
+
+  resources:
+    limits:
+      memory: 512Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi  
+  securityContext:
+    allowPrivilegeEscalation: false
+    runAsUser: 1000
+    runAsGroup: 1000
+    runAsNonRoot: true
+    seccompProfile:
+      type: RuntimeDefault
+    capabilities:
+      drop:
+        - ALL
+  
+  podDisruptionBudget:
+    enabled: true
+    minAvailable: 1 
+
+  config:
+    enabled: true
+    global:
+      resolve_timeout: 5m
+
+    route:
+      receiver: default-receiver
+      group_by: [ 'alertname', 'severity' ]
+      # How long to initially wait to send a notification for a group of alerts
+      group_wait: 30s
+      # How long to wait before sending a notification about new alerts that are added to a group
+      group_interval: 10s
+      # How long to wait before sending a notification again if it has already been sent successfully for an alert
+      repeat_interval: 24h
+      routes:
+        #       - match:
+        #           severity: Informational
+        #         routes: [ {receiver: default-receiver, continue: true}, {receiver: Opsgenie-Orbitspaceship-Informational} ]
+        #       - match:
+        #           severity: Low
+        #         routes: [ {receiver: default-receiver, continue: true}, {receiver: Opsgenie-Orbitspaceship-Low} ]
+        #       - match:
+        #           severity: Moderate
+        #         routes: [ {receiver: default-receiver, continue: true}, {receiver: Opsgenie-Orbitspaceship-Moderate} ]
+        #       - match:
+        #           severity: High
+        #         routes: [ {receiver: default-receiver, continue: true}, {receiver: Opsgenie-Orbitspaceship-High} ]
+        - match:
+            severity: Critical
+          routes: [ { receiver: default-receiver, continue: true }, { receiver: Opsgenie-Orbitspaceship-Critical } ]
+
+    receivers:
+      - name: default-receiver
+
+      #      - name: Opsgenie-Orbitspaceship-Informational
+      #        opsgenie_configs:
+      #        - api_key: "fdb2ba0d-638e-4315-8740-cb5ac7118f4b"
+      #          priority: P5
+      #
+      #      - name: Opsgenie-Orbitspaceship-Low
+      #        opsgenie_configs:
+      #        - api_key: "fdb2ba0d-638e-4315-8740-cb5ac7118f4b"
+      #          priority: P4
+      #
+      #      - name: Opsgenie-Orbitspaceship-Moderate
+      #        opsgenie_configs:
+      #        - api_key: "fdb2ba0d-638e-4315-8740-cb5ac7118f4b"
+      #          priority: P3
+      #
+      #      - name: Opsgenie-Orbitspaceship-High
+      #        opsgenie_configs:
+      #        - api_key: "fdb2ba0d-638e-4315-8740-cb5ac7118f4b"
+      #          priority: P2
+
+      - name: Opsgenie-Orbitspaceship-Critical
+        opsgenie_configs:
+          - api_key: "fdb2ba0d-638e-4315-8740-cb5ac7118f4b"
+            priority: P1
+
+AdvancedAccountId: "810674048896"
+EKSAccountId: "641068916226"

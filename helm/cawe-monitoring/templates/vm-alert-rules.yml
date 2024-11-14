@@ -1,0 +1,175 @@
+{{ if eq .Values.environment "int" }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: vm-alert-rules
+data:
+  alert-rules.yaml: |    
+    groups:
+    - name: blackbox
+      rules:
+        # Alert for any endpoint that is unreachable for >5 minutes.    
+        - alert: BlackboxProbeFailed
+          expr: probe_success == 0
+          for: 5m
+          labels:
+            severity: Moderate
+          annotations:
+            summary: Blackbox probe failed (instance {{ "{{" }} $labels.instance }})  
+            description: "Probe failed\n  VALUE = {{ "{{" }} $value }}\n  LABELS = {{ "{{" }} $labels }}"
+    
+        - alert: BlackboxProbeFailedCriticalEndpoints
+          expr: (probe_success{instance="redis-cluster-replication-group.orzksx.ng.0001.euc1.cache.amazonaws.com:6379"} == 0 OR probe_success{instance="cawe-api-cluster-documentdb.cluster-celizandkk4k.eu-central-1.docdb.amazonaws.com:27017"} == 0 OR probe_success{instance="https://cawe-api.prod.eu-central-1.cawe.daytona.eu-central-1.aws.cloud.bmw/api/health"} == 0)
+          for: 3m
+          labels:
+            severity: Critical
+          annotations:
+            summary: Blackbox probe failed (instance {{ "{{" }} $labels.instance }})  
+            description: "Probe failed\n  VALUE = {{ "{{" }} $value }}\n  LABELS = {{ "{{" }} $labels }}"
+
+    
+        - alert: BlackboxConfigurationReloadFailure
+          expr: blackbox_exporter_config_last_reload_successful != 1
+          for: 0m
+          labels:
+            severity: Low
+          annotations:
+            summary: Blackbox configuration reload failure (instance {{ "{{" }} $labels.instance }}) 
+            description: "Blackbox configuration reload failure\n  VALUE = {{ "{{" }} $value }}\n  LABELS = {{ "{{" }} $labels }}"
+    
+        - alert: BlackboxSslCertificateWillExpireSoon
+          expr: 3 <= round((last_over_time(probe_ssl_earliest_cert_expiry[10m]) - time()) / 86400, 0.1) < 20
+          for: 0m
+          labels:
+            severity: Low
+          annotations:
+            summary: Blackbox SSL certificate will expire soon (instance {{ "{{" }} $labels.instance }})
+            description: "SSL certificate expires in less than 20 days\n  VALUE = {{ "{{" }} $value }}\n  LABELS = {{ "{{" }} $labels }}"
+    
+        - alert: BlackboxSslCertificateExpired
+          expr: round((last_over_time(probe_ssl_earliest_cert_expiry[10m]) - time()) / 86400, 0.1) < 0
+          for: 0m
+          labels:
+            severity: High
+          annotations:
+            summary: Blackbox SSL certificate expired  (instance {{ "{{" }} $labels.instance }})
+            description: "SSL certificate has expired already\n  VALUE = {{ "{{" }} $value }}\n  LABELS = {{ "{{" }} $labels }}"
+      
+        - alert: BlackboxProbeSlowHttp
+          expr: avg_over_time(probe_http_duration_seconds[1m]) > 4
+          for: 0m
+          labels:
+            severity: Low 
+          annotations:
+            summary: Blackbox probe slow HTTP (instance {{ "{{" }} $labels.instance }})
+            description: "HTTP request took more than 1s\n   VALUE = {{ "{{" }} $value }}\n  LABELS = {{ "{{" }} $labels }}"
+      
+    
+    - name: AWS Lambda
+      rules:
+        - alert: LambdaThrottleAlert
+          expr: aws_lambda_throttles_sum > 0
+          for: 0m
+          labels:
+            severity: Critical
+          annotations:
+            summary: "AWS Lambda function throttling detected"
+            description: "The `aws_lambda_throttles_sum` metric has been greater than 0 for 5 minutes."
+        - alert: LambdaErrorAlert
+          expr: aws_lambda_errors_sum > 0
+          for: 0m
+          labels:
+            severity: Critical
+          annotations:
+            summary: "AWS Lambda function errors detected"
+            description: "The `aws_lambda_errors_sum` metric has been greater than 0 for 5 minutes."
+    
+
+{{ end }}
+{{ if eq .Values.environment "prod" }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: vm-alert-rules
+data:
+  alert-rules.yaml: |
+    groups:
+    - name: blackbox
+      rules:
+        # Alert for any endpoint that is unreachable for >5 minutes.    
+        - alert: BlackboxProbeFailed
+          expr: probe_success == 0
+          for: 5m
+          labels:
+            severity: Moderate
+          annotations:
+            summary: Blackbox probe failed (instance {{ "{{" }} $labels.instance }})  
+            description: "Probe failed\n  VALUE = {{ "{{" }} $value }}\n  LABELS = {{ "{{" }} $labels }}"
+    
+        - alert: BlackboxProbeFailedCriticalEndpoints
+          expr: (probe_success{instance="redis-cluster-replication-group.orzksx.ng.0001.euc1.cache.amazonaws.com:6379"} == 0 OR probe_success{instance="cawe-api-cluster-documentdb.cluster-celizandkk4k.eu-central-1.docdb.amazonaws.com:27017"} == 0 OR probe_success{instance="https://cawe-api.prod.eu-central-1.cawe.daytona.eu-central-1.aws.cloud.bmw/api/health"} == 0)
+          for: 3m
+          labels:
+            severity: Critical
+          annotations:
+            summary: Blackbox probe failed (instance {{ "{{" }} $labels.instance }})  
+            description: "Probe failed\n  VALUE = {{ "{{" }} $value }}\n  LABELS = {{ "{{" }} $labels }}"
+
+    
+        - alert: BlackboxConfigurationReloadFailure
+          expr: blackbox_exporter_config_last_reload_successful != 1
+          for: 0m
+          labels:
+            severity: Low
+          annotations:
+            summary: Blackbox configuration reload failure (instance {{ "{{" }} $labels.instance }}) 
+            description: "Blackbox configuration reload failure\n  VALUE = {{ "{{" }} $value }}\n  LABELS = {{ "{{" }} $labels }}"
+    
+        - alert: BlackboxSslCertificateWillExpireSoon
+          expr: 3 <= round((last_over_time(probe_ssl_earliest_cert_expiry[10m]) - time()) / 86400, 0.1) < 20
+          for: 0m
+          labels:
+            severity: Low
+          annotations:
+            summary: Blackbox SSL certificate will expire soon (instance {{ "{{" }} $labels.instance }})
+            description: "SSL certificate expires in less than 20 days\n  VALUE = {{ "{{" }} $value }}\n  LABELS = {{ "{{" }} $labels }}"
+    
+        - alert: BlackboxSslCertificateExpired
+          expr: round((last_over_time(probe_ssl_earliest_cert_expiry[10m]) - time()) / 86400, 0.1) < 0
+          for: 0m
+          labels:
+            severity: High
+          annotations:
+            summary: Blackbox SSL certificate expired  (instance {{ "{{" }} $labels.instance }})
+            description: "SSL certificate has expired already\n  VALUE = {{ "{{" }} $value }}\n  LABELS = {{ "{{" }} $labels }}"
+      
+        - alert: BlackboxProbeSlowHttp
+          expr: avg_over_time(probe_http_duration_seconds[1m]) > 4
+          for: 0m
+          labels:
+            severity: Low 
+          annotations:
+            summary: Blackbox probe slow HTTP (instance {{ "{{" }} $labels.instance }})
+            description: "HTTP request took more than 1s\n   VALUE = {{ "{{" }} $value }}\n  LABELS = {{ "{{" }} $labels }}"
+      
+    
+    - name: AWS Lambda
+      rules:
+        - alert: LambdaThrottleAlert
+          expr: aws_lambda_throttles_sum > 0
+          for: 0m
+          labels:
+            severity: Critical
+          annotations:
+            summary: "AWS Lambda function throttling detected"
+            description: "The `aws_lambda_throttles_sum` metric has been greater than 0 for 5 minutes."
+        - alert: LambdaErrorAlert
+          expr: aws_lambda_errors_sum > 0
+          for: 0m
+          labels:
+            severity: Critical
+          annotations:
+            summary: "AWS Lambda function errors detected"
+            description: "The `aws_lambda_errors_sum` metric has been greater than 0 for 5 minutes."
+{{ end }}
