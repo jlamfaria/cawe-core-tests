@@ -458,7 +458,7 @@ module "lambda-spaceship-reporter" {
 
 module "appsync-reporter" {
     source  = "terraform-aws-modules/appsync/aws"
-    version = "2.5.0"
+    version = "2.5.1"
 
     name       = "spaceship-reporter"
     schema     = file("appsync/schemas/schema.graphql")
