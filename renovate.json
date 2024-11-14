@@ -11,7 +11,6 @@
     "dependencies"
   ],
   "extends": ["config:recommended", ":dependencyDashboardApproval"],
-  "dependencyDashboard": true,
   "automerge": false,
   "baseBranches": ["main"],
   "autodiscover": true,
@@ -20,12 +19,14 @@
     {
       "matchUpdateTypes": ["minor", "patch"],
       "automerge": true,
-      "prCreation": "immediate"
+      "prCreation": "immediate",
+      "dependencyDashboardApproval": true
     },
     {
       "matchUpdateTypes": ["major"],
       "automerge": false,
-      "prCreation": "not-pending"
+      "prCreation": "not-pending",
+      "dependencyDashboardApproval": true
     }
   ]
 }
