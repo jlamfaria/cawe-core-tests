@@ -28,5 +28,6 @@
       "prCreation": "not-pending",
       "prTitle": "{{depName}} {{depVersion}} (major update)"
     }
-  ]
+  ],
+  "prConcurrentLimit": 10
 }
