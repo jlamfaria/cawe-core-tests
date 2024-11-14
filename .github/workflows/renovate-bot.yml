@@ -34,7 +34,7 @@ jobs:
 
       - name: Self-hosted Renovate Bot
         id: self-hosted-renovate-bot
-        uses: renovatebot/github-action@v40.3.4
+        uses: renovatebot/github-action@v41.0.2
         with:
           configurationFile: renovate.json
           token: ${{ env.RENOVATE_BOT_TOKEN }}
