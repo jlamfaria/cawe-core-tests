@@ -1,10 +1,5 @@
-# ------ RENOVATE BOT - Automatically create PRs for dependency updates ------
-# Renovate (https://github.com/renovatebot/renovate#renovate) is a great tool to keep up to date with the dependencies.
-# It will create PRs if a given dependency has an update available.
 name: Renovate Bot - create PR for minor/major updates
 on:
-#  schedule:
-#    - cron: "*/5 * * * *"  # Runs every 5 minutes
   push:
     branches:
       - main
@@ -13,20 +8,8 @@ on:
 jobs:
   renovate-bot:
     concurrency: only_once # Don't run in parallel
-    runs-on: cawe-linux-x64-general-large
+    runs-on: ubuntu-latest
     steps:
-
-      - name: Get a GitHub app token to give this action access to our repo
-        id: get_token
-        uses: actions/create-github-app-token@v1
-        with:
-          app-id: ${{ secrets.RENOVATE_BOT_APP_ID }}
-          private-key: ${{ secrets.RENOVATE_BOT_APP_PK }}
-
-      - name: Save tokens to GITHUB_ENV
-        id: save_tokens
-        run: |
-          echo "RENOVATE_BOT_TOKEN=${{ steps.get_token.outputs.token }}" >> $GITHUB_ENV
 
       - name: Checkout
         id: checkout
@@ -37,8 +20,7 @@ jobs:
         uses: renovatebot/github-action@v40.3.4
         with:
           configurationFile: renovate.json
-          token: ${{ env.RENOVATE_BOT_TOKEN }}
+          token: ${{ secrets.GH_COM_TOKEN_RENOVATE }}  # Use the GitHub PAT directly
         env:
           LOG_LEVEL: debug # Set logging level to debug
-          RENOVATE_ENDPOINT: https://code.connected.bmw/api/v3/
-          GITHUB_COM_TOKEN: ${{ secrets.GH_COM_TOKEN_RENOVATE }}
+          RENOVATE_ENDPOINT: https://api.github.com  # GitHub.com endpoint
