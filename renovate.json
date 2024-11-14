@@ -20,13 +20,13 @@
       "matchUpdateTypes": ["minor", "patch"],
       "automerge": true,
       "prCreation": "immediate",
-      "prTitle": "{{depName}} {{depVersion}} ({{updateType}} update)"
+      "prTitle": "{{updateType}} update - {{depName}} {{depVersion}}"
     },
     {
       "matchUpdateTypes": ["major"],
       "automerge": false,
       "prCreation": "not-pending",
-      "prTitle": "{{depName}} {{depVersion}} (major update)"
+      "prTitle": "{{updateType}} update - {{depName}} {{depVersion}}"
     }
   ],
   "prConcurrentLimit": 10
